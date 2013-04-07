@@ -1,0 +1,160 @@
+<?php
+
+/**
+ * Implement hook_menu().
+ */
+function banner_menu() {
+  $items = array();
+  
+  $items['admin/structure/banner/add'] = array(
+    'title' => 'Add Banner',
+    'page callback' => 'banner_add_page',
+    'access arguments' => 'access content',
+    'file' => 'banner.admin.inc',
+  );
+//
+//  $items['admin/structure/banner'] = array(
+//    'title' => 'Banner',
+//    'description' => 'Manage Banner',
+//    'page callback' => 'banner_admin_page',
+//    'access arguments' => array('administer banner'),
+//    'file' => 'banner.admin.inc',
+//  );
+//
+//  $items['admin/structure/banner/%banner_type'] = array(
+//    'title' => 'Banner Content',
+//    'description' => 'Manage Banner Content',
+//    'page callback' => 'banner_admin_page',
+//    'page arguments' => array(3),
+//    'access arguments' => array('administer banner'),
+//    'file' => 'banner.admin.inc',
+//  );
+//
+//  $items['admin/structure/banner/%banner_type/add'] = array(
+//    'title' => 'Add Banner',
+//    'description' => 'Add Banner Content',
+//    'page callback' => 'banner_add_page',
+//    'page arguments' => array(3),
+//    'access arguments' => array('administer banner'),
+//    'file' => 'banner.admin.inc',
+//  );
+  
+  return $items;
+}
+
+/**
+ * Implement hook_enity_info().
+ */
+function banner_entity_info() {
+  $return = array(
+    'banner' => array(
+      'label' => t('Banner'),
+      'description' => 'Banner entity',
+      'controller class' => 'EntityAPIController',
+      'entity class' => 'Banner',
+      'base table' => 'banner',
+      'fieldable'  => TRUE,
+      'entity keys' => array(
+        'id' => 'bid',
+        'bundle' => 'type',
+//        'label' => 'label'
+      ),
+      'bundles' => array(),
+      'bundle keys' => array(
+        'bundle' => 'type'
+      ),
+      'admin ui' => array(
+        'path' => 'admin/content/banner',
+        'file' => 'banner.admin.inc',
+        'controller class' => 'BannerUIController',
+      ),
+      'access callback' => 'banner_type_access',
+      'module' => 'banner',
+      'metadata controller class' => 'BannerMetadataController'
+    )
+  );
+  
+  foreach (banner_get_bundle_name() as $type => $info) {
+    $return['banner']['bundles'][$type] = array(
+      'label' => $info->label,
+      'admin' => array(
+        'path' => 'admin/structure/banner-type/manage/%banner_type',
+        'real path' => 'admin/structure/banner-type/manage/' . $type,
+        'bundle argument' => 4,
+        'access arguments' => array('administer banners')
+      )
+    );
+  }
+  
+  $return['banner_type'] = array(
+    'label' => t('Banner type'),
+    'plural label' => t('Banner types'),
+    'description' => t('Banner type description.'),
+    'entity class' => 'BannerType',
+    'controller class' => 'EntityAPIControllerExportable',
+    'base table' => 'banner_type',
+    'fieldable' => FALSE,
+    'bundle of' => 'banner',
+    'exportable' => TRUE,
+    'entity keys' => array(
+      'id' => 'id',
+      'name' => 'type',
+      'label' => 'label',
+    ),
+    'access callback' => 'banner_type_access',
+    'module' => 'banner',
+    // Enable the entity API's admin UI.
+    'admin ui' => array(
+      'path' => 'admin/structure/banner-type',
+      'file' => 'banner.type.inc',
+      'controller class' => 'BannerTypeUIController',
+    ),
+  );
+  
+  return $return;
+}
+
+function banner_type_access() {
+  return TRUE;
+}
+
+/**
+ * Implement hook_permission().
+ */
+function banner_permission() {
+  return array(
+    'administer banners' => array(
+      'title' => 'Administer banners'
+    )
+  );
+}
+
+function banner_get_bundle_name() {
+  $select = db_select('banner_type', 'b')
+    ->fields('b')
+    ->execute()
+    ->fetchAllAssoc('type');
+  return $select;
+}
+
+function banner_type_load($type) {
+  return banner_get_types($type); 
+}
+
+function banner_get_types($type_name = NULL) {
+  $types = entity_load_multiple_by_name('banner_type', isset($type_name) ? array($type_name) : FALSE);
+  return isset($type_name) ? reset($types) : $types;
+}
+
+function banner_admin_paths() {
+  return array(
+    'banner/add/*' => TRUE,
+  );
+}
+
+/**
+ * Create a model object.
+ */
+function banner_create($values = array()) {
+  return entity_get_controller('banner')->create($values);
+}

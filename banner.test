@@ -1,0 +1,20 @@
+<?php
+
+class BannerTestCase extends DrupalWebTestCase {
+  public static function getInfo() {
+    return array(
+      'name' => 'Create Banner Entity',
+      'description' => 'Tests Banner entity creation.',
+      'group' => 'Banner',
+    );
+  }
+  
+  public function setUp() {
+    parent::setUp('banner', 'entity');
+  }
+  
+  public function testBannerEnable() {
+    $system_entity = entity_get_info('banner');
+    $this->assertTrue(!empty($system_entity), 'Banner entity is created.');
+  }
+}

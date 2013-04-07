@@ -1,0 +1,97 @@
+<?php
+
+/**
+ * Implement hook_schema().
+ */
+function banner_schema() {
+  $schema['banner'] = array(
+    'description' => 'Banner Entity',
+    'fields' => array(
+      'bid' => array(
+        'type' => 'serial',
+        'not null' => true,
+        'description' => 'Banner id'
+      ),
+      'type' => array(
+        'description' => 'Banner type',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => true,
+      ),
+      'created' => array(
+        'description' => 'Date create banner',
+        'type' => 'int',
+        'not null' => false
+      ),
+      'updated' => array(
+        'description' => 'Date change banner',
+        'type' => 'int',
+        'not null' => false
+      ),
+      'title' => array (
+        'description' => 'Description',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => true,
+      ),
+      'uid' => array(
+        'description' => 'Author of banner',
+        'type' => 'int',
+        'not null' => true
+      ),
+      'status' => array(
+        'description' => 'Status of banner',
+        'type' => 'int',
+        'not null' => true
+      ),
+      'click_number' => array(
+        'description' => 'Click number',
+        'type' => 'int',
+        'not null' => false
+      ),
+      'view_number' => array(
+        'description' => 'view number',
+        'type' => 'int',
+        'not null' => false
+      ),
+    ),
+    'indexes' => array('bid' => array('bid')),
+    'foreign keys' => array(
+      'uid' => array(
+        'table' => 'users',
+        'columns' => array('uid' => 'uid'),
+      ),
+      'type' => array(
+        'table' => 'banner_type',
+        'columns' => array('type' => 'type'),
+      ),
+    ),
+    'primary key' => array('bid'),
+  );
+
+  $schema['banner_type'] = array(
+    'description' => 'Banner bundles',
+    'fields' => array(
+      'id' => array(
+        'type' => 'serial',
+        'not null' => true,
+        'description' => 'Type id',
+      ),
+      'type' => array(
+        'type' => 'varchar',
+        'length' => 32,
+        'description' => 'Type of banner',
+        'not null' => true
+      ),
+      'label' => array(
+        'type' => 'varchar',
+        'length' => 32,
+        'description' => 'Label of banner',
+        'not null' => true
+      ),
+    ),
+    'primary key' => array('id'),
+    'unique keys' => array('type' => array('type')),
+  );
+  return $schema;
+}

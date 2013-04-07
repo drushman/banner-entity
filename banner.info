@@ -1,0 +1,10 @@
+name = Banner Entity
+description = Learn entity
+core = 7.x
+package = Development
+
+dependencies[] = entity
+files[] = banner.test
+files[] = banner.entity.inc
+files[] = banner.admin.inc
+files[] = banner.type.inc
