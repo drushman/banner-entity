@@ -28,6 +28,18 @@ function banner_schema() {
         'type' => 'int',
         'not null' => false
       ),
+      'label' => array (
+        'description' => 'Description',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => true,
+      ),
+      'title' => array (
+        'description' => 'Description',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => true,
+      ),
       'title' => array (
         'description' => 'Description',
         'type' => 'varchar',

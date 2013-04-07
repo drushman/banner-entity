@@ -1,0 +1,72 @@
+<?php
+
+class BannerMetadataController extends EntityDefaultMetadataController {
+  public function entityPropertyInfo() {
+    $info = parent::entityPropertyInfo();
+    $properties = &$info[$this->type]['properties'];
+
+    $properties['title'] = array(
+      'label' => t('Title'),
+      'description' => t('The ticket title.'),
+      'setter callback' => 'entity_property_verbatim_set',
+      'setter permission' => 'access content',
+      'schema field' => 'title',
+    );
+
+//    $properties['type'] = array(
+//      'type' => 'ticket',
+//      'getter callback' => 'entity_property_getter_method',
+//      'setter callback' => 'entity_property_verbatim_set',
+//      'setter permission' => 'administer tickets',
+//      'required' => TRUE,
+//      'description' => t('The ticket type.'),
+//    ) + $properties['type'];
+
+    unset($properties['uid']);
+
+    $properties['user'] = array(
+      'label' => t("User"),
+      'type' => 'user',
+      'description' => t("The owner of the ticket."),
+      'getter callback' => 'entity_property_getter_method',
+      'setter callback' => 'entity_property_setter_method',
+//      'setter permission' => 'administer tickets',
+      'required' => TRUE,
+      'schema field' => 'uid',
+    );
+
+//    $properties['weight'] = array(
+//      'label' => t("Ticket weight"),
+//      'type' => 'integer',
+//      'description' => t("The ticket weight."),
+//      'setter callback' => 'entity_property_verbatim_set',
+//      'setter permission' => 'administer tickets',
+//      'schema field' => 'weight',
+//    );
+//    $properties['language'] = array(
+//      'label' => t('Language'),
+//      'type' => 'token',
+//      'description' => t('The language the ticket was created in.'),
+//      'setter callback' => 'entity_property_verbatim_set',
+//      'options list' => 'entity_metadata_language_list',
+//      'schema field' => 'language',
+//      'setter permission' => 'administer tickets',
+//    );
+    $properties['created'] = array(
+      'label' => t("Date created"),
+      'type' => 'date',
+      'description' => t("The date the ticket was created."),
+      'setter callback' => 'entity_property_verbatim_set',
+      'setter permission' => 'access content',
+      'schema field' => 'created',
+    );
+    $properties['updated'] = array(
+      'label' => t("Date changed"),
+      'type' => 'date',
+      'schema field' => 'updated',
+      'description' => t("The date the ticket was most recently updated."),
+    );
+
+    return $info;
+  }
+}

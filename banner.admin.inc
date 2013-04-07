@@ -6,22 +6,32 @@ class BannerUIController extends EntityDefaultUIController {
       $items[$this->path]['type'] = MENU_LOCAL_TASK;
       $items[$this->path . '/add']['page callback'] = 'banner_add_page';
       foreach (banner_get_types() as $type) {
-        $items['banner/add/' . $type] = array(
+        $items['banner/add/' . $type->type] = array(
           'title' => 'Add Banner',
           'page callback' => 'banner_form_wrapper',
-          'page arguments' => array(banner_create(array('type' => $type->type))),
+          'page arguments' => array($type->type),
           'access arguments' => array('access content'),
           'type' => MENU_CALLBACK,
           'file' => 'banner.admin.inc',
           'file path' => drupal_get_path('module', 'banner'),
         );
       }
+      $items['banner/%banner/edit'] = array(
+        'type' => MENU_CALLBACK,
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('banner_form', 1),
+        'access arguments' => array('access content'),
+        'file' => 'banner.admin.inc',
+        'file path' => drupal_get_path('module', 'banner'),
+      );
+      
       return $items;
     }
 }
 
 function banner_form_wrapper($banner) {
-  return drupal_get_form('banner_edit_form', $banner);
+  $banner = banner_create(array('type' => $banner));
+  return drupal_get_form('banner_form', $banner);
 }
 
 /**
@@ -31,7 +41,7 @@ function banner_form_wrapper($banner) {
  *   The banner object to edit or for a create form an empty banner object
  *     with only a banner type defined.
  */
-function banner_edit_form($form, &$form_state, $banner) {
+function banner_form($form, &$form_state, $banner) {
   // Add the default field elements.
   $form['title'] = array(
     '#type' => 'textfield',
@@ -41,8 +51,11 @@ function banner_edit_form($form, &$form_state, $banner) {
     '#required' => TRUE,
     '#weight' => -5,
   );
-  
-
+  $form['status'] = array(
+    '#type' => 'checkbox',
+    '#title' => 'Status',
+    '#default_value' => isset($banner->status) ? $banner->status : FALSE,
+  );
   // Add the field related form elements.
   $form_state['banner'] = $banner;
   field_attach_form('banner', $banner, $form, $form_state);
@@ -64,7 +77,7 @@ function banner_edit_form($form, &$form_state, $banner) {
   $form['actions']['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Save banner'),
-    '#submit' => $submit + array('banner_edit_form_submit'),
+    '#submit' => $submit + array('banner_form_submit'),
   );
   
   if (!empty($banner->name)) {
@@ -79,7 +92,7 @@ function banner_edit_form($form, &$form_state, $banner) {
 
   // We append the validate handler to #validate in case a form callback_wrapper
   // is used to add validate handlers earlier.
-  $form['#validate'][] = 'banner_edit_form_validate';
+  $form['#validate'][] = 'banner_form_validate';
   return $form;
 }
 
@@ -87,7 +100,7 @@ function banner_edit_form($form, &$form_state, $banner) {
 /**
  * Form API validate callback for the banner form
  */
-function banner_edit_form_validate(&$form, &$form_state) {
+function banner_form_validate(&$form, &$form_state) {
   $banner = $form_state['banner'];
   
   // Notify field widgets to validate their data.
@@ -100,7 +113,7 @@ function banner_edit_form_validate(&$form, &$form_state) {
  * 
  * @todo remove hard-coded link
  */
-function banner_edit_form_submit(&$form, &$form_state) {
+function banner_form_submit(&$form, &$form_state) {
   
   $banner = entity_ui_controller('banner')->entityFormSubmitBuildEntity($form, $form_state);
   // Save the banner and go back to the list of banners
@@ -113,7 +126,9 @@ function banner_edit_form_submit(&$form, &$form_state) {
   $banner->changed = time();
   
   $banner->save();
-  $form_state['redirect'] = 'admin/content/banners';
+//  kpr($banner);
+//  exit;
+  $form_state['redirect'] = 'admin/content/banner';
 }
 
 /**

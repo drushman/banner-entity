@@ -1,48 +1,6 @@
 <?php
 
 /**
- * Implement hook_menu().
- */
-function banner_menu() {
-  $items = array();
-  
-  $items['admin/structure/banner/add'] = array(
-    'title' => 'Add Banner',
-    'page callback' => 'banner_add_page',
-    'access arguments' => 'access content',
-    'file' => 'banner.admin.inc',
-  );
-//
-//  $items['admin/structure/banner'] = array(
-//    'title' => 'Banner',
-//    'description' => 'Manage Banner',
-//    'page callback' => 'banner_admin_page',
-//    'access arguments' => array('administer banner'),
-//    'file' => 'banner.admin.inc',
-//  );
-//
-//  $items['admin/structure/banner/%banner_type'] = array(
-//    'title' => 'Banner Content',
-//    'description' => 'Manage Banner Content',
-//    'page callback' => 'banner_admin_page',
-//    'page arguments' => array(3),
-//    'access arguments' => array('administer banner'),
-//    'file' => 'banner.admin.inc',
-//  );
-//
-//  $items['admin/structure/banner/%banner_type/add'] = array(
-//    'title' => 'Add Banner',
-//    'description' => 'Add Banner Content',
-//    'page callback' => 'banner_add_page',
-//    'page arguments' => array(3),
-//    'access arguments' => array('administer banner'),
-//    'file' => 'banner.admin.inc',
-//  );
-  
-  return $items;
-}
-
-/**
  * Implement hook_enity_info().
  */
 function banner_entity_info() {
@@ -50,14 +8,15 @@ function banner_entity_info() {
     'banner' => array(
       'label' => t('Banner'),
       'description' => 'Banner entity',
-      'controller class' => 'EntityAPIController',
+      'controller class' => 'EntityAPIControllerExportable',
       'entity class' => 'Banner',
       'base table' => 'banner',
       'fieldable'  => TRUE,
+      'exportable'  =>TRUE,
       'entity keys' => array(
         'id' => 'bid',
         'bundle' => 'type',
-//        'label' => 'label'
+        'label' => 'label',
       ),
       'bundles' => array(),
       'bundle keys' => array(
@@ -69,6 +28,7 @@ function banner_entity_info() {
         'controller class' => 'BannerUIController',
       ),
       'access callback' => 'banner_type_access',
+      'label callback' => 'banner_label_callback',
       'module' => 'banner',
       'metadata controller class' => 'BannerMetadataController'
     )
@@ -114,6 +74,10 @@ function banner_entity_info() {
   return $return;
 }
 
+function banner_label_callback($entity) {
+  return $entity->title;
+}
+
 function banner_type_access() {
   return TRUE;
 }
@@ -139,6 +103,10 @@ function banner_get_bundle_name() {
 
 function banner_type_load($type) {
   return banner_get_types($type); 
+}
+
+function banner_load($bid) {
+  return entity_load_single('banner', $bid);
 }
 
 function banner_get_types($type_name = NULL) {

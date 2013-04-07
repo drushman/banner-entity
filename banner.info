@@ -8,3 +8,4 @@ files[] = banner.test
 files[] = banner.entity.inc
 files[] = banner.admin.inc
 files[] = banner.type.inc
+files[] = banner.meta.inc
